@@ -22,8 +22,10 @@ app.get('/play', async (req, res) => {
     });
 
   } catch (e) {
-    res.json({ error: 'Cannot fetch video' });
-  }
+  console.error(e);  // log chi tiết
+  res.json({ error: 'Cannot fetch video', message: e.message });
+}
+
 });
 
 app.listen(PORT, () => {
