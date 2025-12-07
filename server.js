@@ -11,15 +11,25 @@ app.get('/play', async (req, res) => {
   }
 
   try {
-    const url = `https://www.youtube.com/watch?v=${q}`;
-    const info = await ytdl.getInfo(url);
+    const ytsr = require('ytsr'); // Thêm thư viện tìm kiếm YouTube
+const query = q;
 
-    const audio = ytdl.chooseFormat(info.formats, { quality: 'highestaudio' });
+const searchResults = await ytsr(query, { limit: 1 });
+if (!searchResults.items || searchResults.items.length === 0) {
+    return res.json({ error: 'No video found' });
+}
 
-    res.json({
-      title: info.videoDetails.title,
-      mp3: audio.url
-    });
+const video = searchResults.items[0];
+const videoUrl = video.url;
+
+const info = await ytdl.getInfo(videoUrl, { requestOptions: { headers: { 'user-agent': 'Mozilla/5.0' } } });
+const format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio' });
+
+res.json({
+    title: info.videoDetails.title,
+    mp3: format.url
+});
+
 
   } catch (e) {
   console.error(e);  // log chi tiết
